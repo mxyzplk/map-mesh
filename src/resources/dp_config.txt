@@ -1,0 +1,6 @@
+3
+0                             method: 0: kriging
+0                             plane 0: xy 1: xz
+i_dpress_1.txt                o_dpress_1.txt
+i_dpress_2.txt                o_dpress_2.txt
+i_dpress_3.txt                o_dpress_3.txt

@@ -1,0 +1,13 @@
+[origin]
+grids: i_grids.txt
+elements: i_elements.txt 
+mesh_type: 3
+press_type: 1
+
+
+
+[target]
+grids: o_grids.txt
+elements: o_elements.txt 
+mesh_type: 4
+press_type: 0
