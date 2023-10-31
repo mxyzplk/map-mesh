@@ -191,3 +191,15 @@ class Surface:
         with open(filepath, 'w') as file: 
             for i in range(self.nelements):
                 file.write("{:12.6f}\n".format(self.press[i])) 
+
+    def intmesh(self, fout):
+        filepath = os.path.join(self.results_dir, fout)
+        self.forces = np.empty((self.ne, 3))
+        self.moments = np.empty((self.ne, 3))
+        self.distance = np.empty((self.ne, 3))
+
+        for i in range(self.ne):
+            self.forces[i, 0] = self.press[i] * self.area[i, 0] # Fx
+            self.forces[i, 1] = self.press[i] * self.area[i, 1] # Fy
+            self.forces[i, 2] = self.press[i] * self.area[i, 2] # Fz
+
