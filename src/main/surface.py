@@ -166,7 +166,7 @@ class Surface:
                 if (int(self.mesh_type) == 3):
                     file.write("{:8d} {:8d} {:8d} {:8d}\n".format(int(self.mesh_type), self.elements[i, 0], self.elements[i, 1], self.elements[i, 2] ))
                 elif (int(self.mesh_type) == 4):
-                    file.write("{:8d} {:8d} {:8d} {:8d} {:8d}\n".format(int(self.mesh_type), int(self.connectivity[i, 0]), int(self.connectivity[i, 1]), int(self.connectivity[i, 2]), int(self.connectivity[i, 3])))
+                    file.write("{:8d} {:8d} {:8d} {:8d} {:8d}\n".format(int(self.mesh_type), int(self.connectivity[i, 0]) - 1, int(self.connectivity[i, 1]) - 1, int(self.connectivity[i, 2]) - 1, int(self.connectivity[i, 3]) - 1))
                     
             file.write("\n")
             file.write("CELL_TYPES {:8d}\n".format(self.nelements))
