@@ -197,9 +197,43 @@ class Surface:
         self.forces = np.empty((self.ne, 3))
         self.moments = np.empty((self.ne, 3))
         self.distance = np.empty((self.ne, 3))
+        self.refpoint = np.empty(3)
+        self.refcs = np.empty((4, 3))
+        
+        cspath = os.path.join(self.resources_dir, "cs.txt")
+
+        with open(cspath, 'r') as f1:
+            #
+            line = file.readline()
+            #
+            line = file.readline()
+            temp = line.split()
+            self.refpoint[0:2] = float(temp[0:2)]
+            #
+            line = file.readline()
+            temp = line.split()
+            self.refcs[0, 0:2] = float(temp[0:2)]
+            #
+            line = file.readline()
+            temp = line.split()
+            self.refcs[1, 0:2] = float(temp[0:2)]
+            #
+            line = file.readline()
+            temp = line.split()
+            self.refcs[2, 0:2] = float(temp[0:2)]
+            #
+            line = file.readline()
+            temp = line.split()
+            self.refcs[3, 0:2] = float(temp[0:2)]
+            #                                       
+            
 
         for i in range(self.ne):
             self.forces[i, 0] = self.press[i] * self.area[i, 0] # Fx
             self.forces[i, 1] = self.press[i] * self.area[i, 1] # Fy
             self.forces[i, 2] = self.press[i] * self.area[i, 2] # Fz
-
+            for j in range(3):
+                self.distance[i, j] = self.center[i, j] - self.refpoint[j]
+            
+            self.moments = np.cross(self.forces, self.distance)
+        
