@@ -29,6 +29,7 @@ if target_data != "Mesh not found in the config file.":
 target = Surface(int(mesh_type))
 target.read_grids(grids_file)
 target.read_elements(elements_file)
+target.allocate_press(target.ngrids)
 target.calc_area()
 
 # Pressure files
@@ -37,7 +38,6 @@ config.get_press_file_info()
 
 # Mapping
 
-print(origin_press_type)
 
 for i in range(config.ifiles):
     origin.read_press(config.press_i[i], origin_press_type)
@@ -48,21 +48,28 @@ for i in range(config.ifiles):
     elif (int(config.plane) == 1):   # Plane xz
         c1 = 0
         c2 = 2
-     
-    if (int(origin_press_type) == 0):     # Pressure on grids
-        origin_idw = IDWInterpolator(origin.ngrids, 4)
-        origin_idw.set_mesh(origin.grids[:, int(c1)], origin.grids[:, int(c2)], origin.press[:])
-        
-    if (int(origin_press_type) == 1):     # Pressure on element centers
-        origin_idw = IDWInterpolator(origin.nelements, 4)
-        origin_idw.set_mesh(origin.centers[:, int(c1)], origin.centers[:, int(c2)], origin.press[:])
-        
-    if (int(target_press_type) == 0):     # Pressure on grids
-        target.press = origin_idw.eval_mesh(target.grids, int(config.plane), target.ngrids)
-        target.write_press_grids(config.press_o[i])
     
-    if (int(target_press_type) == 1):     # Pressure on element centers
-        target.press = origin_idw.eval_mesh(target.centers, int(config.plane), target.nelements)
-        target.write_press_elements(config.press_o[i])
+    if (int(config.method) == 0):
+        pass
+    elif (int(config.method) == 1):
+        
+        if (int(origin_press_type) == 0):     # Pressure on grids
+            origin_idw = IDWInterpolator(origin.ngrids, 4, 10)
+            origin_idw.set_mesh(origin.grids[:, int(c1)], origin.grids[:, int(c2)], origin.press[:])
+            
+        if (int(origin_press_type) == 1):     # Pressure on element centers
+            origin_idw = IDWInterpolator(origin.nelements, 4, 10)
+            origin_idw.set_mesh(origin.centers[:, int(c1)], origin.centers[:, int(c2)], origin.press[:])
+            
+        if (int(target_press_type) == 0):     # Pressure on grids
+            target.press = origin_idw.eval_mesh(target.grids, int(config.plane), target.ngrids)
+            target.write_press_grids(config.press_o[i])
+        
+        if (int(target_press_type) == 1):     # Pressure on element centers
+            target.press = origin_idw.eval_mesh(target.centers, int(config.plane), target.nelements)
+            target.write_press_elements(config.press_o[i])
     
-
+    i_intmesh_out = config.press_i[i].replace(".txt", "_int.txt")
+    origin.intmesh(i_intmesh_out)
+    o_intmesh_out = config.press_o[i].replace(".txt", "_int.txt")
+    target.intmesh(o_intmesh_out)
