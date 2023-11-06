@@ -47,7 +47,7 @@ class Surface:
             temp = line.split()
             self.nelements = int(temp[0])                  # Number of elements
             print("Elements: {}".format(self.nelements))
-            self.connectivity = np.empty((self.nelements, self.mesh_type))
+            self.elements = np.empty((self.nelements, self.mesh_type))
             self.centers = np.empty((self.nelements, 3))
             self.area = np.empty((self.nelements, 3))
 
@@ -55,7 +55,7 @@ class Surface:
                 line = file.readline()
                 temp = line.split()
                 for j in range(self.mesh_type):
-                    self.connectivity[i, j] = int(temp[j])       # Reading connectivity
+                    self.elements[i, j] = int(temp[j])       # Reading elements
                     
         self.calc_panel_centers()
                     
@@ -85,13 +85,13 @@ class Surface:
         
         for i in range(self.nelements):
             if (self.mesh_type == 3):
-                self.centers[i, 0] = (self.grids[int(self.connectivity[i, 0]) - 1, 0] + self.grids[int(self.connectivity[i, 1]) - 1, 0] + self.grids[int(self.connectivity[i, 2]) - 1, 0]) / 3
-                self.centers[i, 1] = (self.grids[int(self.connectivity[i, 0]) - 1, 1] + self.grids[int(self.connectivity[i, 1]) - 1, 1] + self.grids[int(self.connectivity[i, 2]) - 1, 1]) / 3
-                self.centers[i, 2] = (self.grids[int(self.connectivity[i, 0]) - 1, 2] + self.grids[int(self.connectivity[i, 1]) - 1, 2] + self.grids[int(self.connectivity[i, 2]) - 1, 2]) / 3
+                self.centers[i, 0] = (self.grids[int(self.elements[i, 0]) - 1, 0] + self.grids[int(self.elements[i, 1]) - 1, 0] + self.grids[int(self.elements[i, 2]) - 1, 0]) / 3
+                self.centers[i, 1] = (self.grids[int(self.elements[i, 0]) - 1, 1] + self.grids[int(self.elements[i, 1]) - 1, 1] + self.grids[int(self.elements[i, 2]) - 1, 1]) / 3
+                self.centers[i, 2] = (self.grids[int(self.elements[i, 0]) - 1, 2] + self.grids[int(self.elements[i, 1]) - 1, 2] + self.grids[int(self.elements[i, 2]) - 1, 2]) / 3
             elif (self.mesh_type == 4):
-                self.centers[i, 0] = 0.25 * (self.grids[int(self.connectivity[i, 0]) - 1, 0] + self.grids[int(self.connectivity[i, 1]) - 1, 0] + self.grids[int(self.connectivity[i, 2]) - 1, 0] + self.grids[int(self.connectivity[i, 3]) - 1, 0])
-                self.centers[i, 1] = 0.25 * (self.grids[int(self.connectivity[i, 0]) - 1, 1] + self.grids[int(self.connectivity[i, 1]) - 1, 1] + self.grids[int(self.connectivity[i, 2]) - 1, 1] + self.grids[int(self.connectivity[i, 3]) - 1, 1])
-                self.centers[i, 2] = 0.25 * (self.grids[int(self.connectivity[i, 0]) - 1, 2] + self.grids[int(self.connectivity[i, 1]) - 1, 2] + self.grids[int(self.connectivity[i, 2]) - 1, 2] + self.grids[int(self.connectivity[i, 3]) - 1, 2])
+                self.centers[i, 0] = 0.25 * (self.grids[int(self.elements[i, 0]) - 1, 0] + self.grids[int(self.elements[i, 1]) - 1, 0] + self.grids[int(self.elements[i, 2]) - 1, 0] + self.grids[int(self.elements[i, 3]) - 1, 0])
+                self.centers[i, 1] = 0.25 * (self.grids[int(self.elements[i, 0]) - 1, 1] + self.grids[int(self.elements[i, 1]) - 1, 1] + self.grids[int(self.elements[i, 2]) - 1, 1] + self.grids[int(self.elements[i, 3]) - 1, 1])
+                self.centers[i, 2] = 0.25 * (self.grids[int(self.elements[i, 0]) - 1, 2] + self.grids[int(self.elements[i, 1]) - 1, 2] + self.grids[int(self.elements[i, 2]) - 1, 2] + self.grids[int(self.elements[i, 3]) - 1, 2])
     
 
 
@@ -100,10 +100,10 @@ class Surface:
          
         for i in range(self.nelements):
             if (self.mesh_type == 3):
-                points = tuple(self.grids[[int(self.connectivity[i, 0]) - 1, int(self.connectivity[i, 1]) - 1, int(self.connectivity[i, 2]) - 1], 0:3])
+                points = tuple(self.grids[[int(self.elements[i, 0]) - 1, int(self.elements[i, 1]) - 1, int(self.elements[i, 2]) - 1], 0:3])
                 self.area[i, 0:3] = self.calculate_triangle_area_3d(points)
             elif (self.mesh_type == 4):
-                points = tuple(self.grids[[int(self.connectivity[i, 0]) - 1, int(self.connectivity[i, 1]) - 1, int(self.connectivity[i, 2]) - 1, int(self.connectivity[i, 3]) - 1], 0:3])
+                points = tuple(self.grids[[int(self.elements[i, 0]) - 1, int(self.elements[i, 1]) - 1, int(self.elements[i, 2]) - 1, int(self.elements[i, 3]) - 1], 0:3])
                 self.area[i, 0:3] = self.calculate_quadrilateral_area_3d(points)
                 
         print("Areas: {:12.6f} {:12.6f} {:12.6f}".format(np.sum(self.area[:, 0]), np.sum(self.area[:, 1]), np.sum(self.area[:, 2])))
@@ -161,7 +161,7 @@ class Surface:
                 if (int(self.mesh_type) == 3):
                     file.write("{:8d} {:8d} {:8d} {:8d}\n".format(int(self.mesh_type), self.elements[i, 0], self.elements[i, 1], self.elements[i, 2] ))
                 elif (int(self.mesh_type) == 4):
-                    file.write("{:8d} {:8d} {:8d} {:8d} {:8d}\n".format(int(self.mesh_type), int(self.connectivity[i, 0])-1, int(self.connectivity[i, 1])-1, int(self.connectivity[i, 2])-1, int(self.connectivity[i, 3])-1))
+                    file.write("{:8d} {:8d} {:8d} {:8d} {:8d}\n".format(int(self.mesh_type), int(self.elements[i, 0])-1, int(self.elements[i, 1])-1, int(self.elements[i, 2])-1, int(self.elements[i, 3])-1))
                     
             file.write("\n")
             file.write("CELL_TYPES {:8d}\n".format(self.nelements))
@@ -181,12 +181,47 @@ class Surface:
     def write_press_elements(self, fout):
         
         filepath = os.path.join(self.results_dir, fout)
-        
+        filepath_vtk = filepath.replace(".txt", ".vtk")
         
         with open(filepath, 'w') as file: 
             for i in range(self.nelements):
                 file.write("{:12.6f}\n".format(self.press[i])) 
 
+        with open(filepath_vtk, 'w') as file:
+            
+            file.write("# vtk DataFile Version 3.0\n")
+            file.write("vtk output\n")
+            file.write("ASCII\n")
+            file.write("DATASET UNSTRUCTURED_GRID\n\n")
+            file.write("POINTS {:8d} float\n".format(self.ngrids))
+            
+            for i in range(int(self.ngrids)):
+                file.write("{:12.6f} {:12.6f} {:12.6f}\n".format(self.grids[i, 0], self.grids[i, 1], self.grids[i, 2]))
+                
+            file.write("\n")
+            file.write("CELLS {:8d} {:8d}\n".format(self.nelements, self.nelements * (int(self.mesh_type + 1))))
+            
+            for i in range(self.nelements):
+                if (int(self.mesh_type) == 3):
+                    file.write("{:8d} {:8d} {:8d} {:8d}\n".format(int(self.mesh_type), int(self.elements[i, 0]) - 1, int(self.elements[i, 1]) - 1 , int(self.elements[i, 2]) - 1))
+                elif (int(self.mesh_type) == 4):
+                    file.write("{:8d} {:8d} {:8d} {:8d} {:8d}\n".format(int(self.mesh_type), int(self.elements[i, 0]) - 1, int(self.elements[i, 1]) - 1, int(self.elements[i, 2]) - 1, int(self.elements[i, 3]) - 1))
+                    
+            file.write("\n")
+            file.write("CELL_TYPES {:8d}\n".format(self.nelements))
+            
+            for i in range(self.nelements):
+                file.write("9\n")
+
+            file.write("\n")
+            
+            file.write("CELL_DATA {:8d}\n".format(self.nelements))
+            file.write("SCALARS dcp float\n")
+            file.write("LOOKUP_TABLE default\n")
+            file.write("\n")
+            for i in range(self.nelements):
+                file.write("{:12.6f} \n".format(self.press[i]))
+                
 
     def allocate_press(self, n):
         self.press = np.empty(int(n))

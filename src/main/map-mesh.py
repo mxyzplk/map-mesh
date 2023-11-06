@@ -56,10 +56,12 @@ for i in range(config.ifiles):
         if (int(origin_press_type) == 0):     # Pressure on grids
             origin_idw = IDWInterpolator(origin.ngrids, 4, 10)
             origin_idw.set_mesh(origin.grids[:, int(c1)], origin.grids[:, int(c2)], origin.press[:])
+            origin.write_press_grids(config.press_i[i])
             
         if (int(origin_press_type) == 1):     # Pressure on element centers
             origin_idw = IDWInterpolator(origin.nelements, 4, 10)
             origin_idw.set_mesh(origin.centers[:, int(c1)], origin.centers[:, int(c2)], origin.press[:])
+            origin.write_press_elements(config.press_i[i])
             
         if (int(target_press_type) == 0):     # Pressure on grids
             target.press = origin_idw.eval_mesh(target.grids, int(config.plane), target.ngrids)
