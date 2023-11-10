@@ -1,27 +1,60 @@
 from pykrige.ok import OrdinaryKriging
 import matplotlib.pyplot as plt
 import pykrige.kriging_tools as kt
-import os
+import numpy as np
 
 # memory allocation problems
-def kriging(ix, iy, ip, ox, oy, resultdir, fout):
+def kriging(ix, iy, ip, ox, oy):
     
-    ok = OrdinaryKriging(ix, iy, ip, variogram_model="linear", verbose=False, enable_plotting=False)                         
+    nn = 10
+    ngo = len(ox)
+    ngi = len(ix)
+    di = np.empty(ngi)
+    lowest = np.empty(nn)
+    res = []
     
-    z, ss = ok.execute("grid", ox, oy)
+    for i in range(ngo): # for each output grid
     
-    fg_i = fout.replace(".txt", "_i.png")
-    fg_o = fout.replace(".txt", "_o.png")
+        print(i)    
     
-    r1 = os.path.join(resultdir, fout)
-    r2 = os.path.join(resultdir, fg_i)
-    r3 = os.path.join(resultdir, fg_o)
+        di = calc_distances(ox[i], oy[i], ngi, ix, iy)
+        lowest = get_n_lowest(di, nn)
+        
+        ok = OrdinaryKriging(ix[lowest.astype(int)], iy[lowest.astype(int)], ip[lowest.astype(int)], variogram_model="linear", verbose=False, enable_plotting=False)                         
     
-    plt.imshow(z, extent=(min(ox), max(ox), min(oy), max(oy)), origin='lower', cmap='viridis')
-    plt.savefig(r3)
+        z, ss = ok.execute("grid", ox, oy)
     
-    plt.imshow(ip, extent=(min(ix), max(ix), min(iy), max(iy)), origin='lower', cmap='viridis')
-    plt.savefig(r2)
+        z_res = np.ravel(z)
+        
+        print(z_res)
+        
+        res.append(z_res)
+    
+    return res
+
+
+def calc_distances(a1, a2, ng, g1, g2):
+
+    d = np.empty(ng)
+    
+    for i in range(ng):
+        d1 = a1 - g1[i]
+        d2 = a2 - g2[i]
+        d[i] = (d1 ** 2 + d2 ** 2) ** 0.5
+
+    return d
+    
+       
+     
+def get_n_lowest(arr, n):
+        if n <= 0:
+            return []
+    
+        sorted_indices = np.argsort(arr)
+    
+        return sorted_indices[:n]  
+
+    
 
 
     

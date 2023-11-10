@@ -1,6 +1,7 @@
 from surface import Surface
 from config import Config
 from idw_interpolation import IDWInterpolator
+from kriging import kriging
 
 config = Config()  
 
@@ -50,7 +51,31 @@ for i in range(config.ifiles):
         c2 = 2
     
     if (int(config.method) == 0):
-        pass
+        if (int(origin_press_type) == 0):     # Pressure on grids 
+            if (int(target_press_type) == 0):     # Pressure on grids
+                temp = kriging(origin.grids[:, int(c1)], origin.grids[:, int(c2)], origin.press[:], target.grids[:, int(c1)], target.grids[:, int(c2)])
+                for i1 in range(len(temp)):
+                    target.press[i1] = float(temp[i1])
+                target.write_press_grids(config.press_o[i])
+            
+            if (int(target_press_type) == 1):     # Pressure on element centers
+                temp = kriging(origin.grids[:, int(c1)], origin.grids[:, int(c2)], origin.press[:], target.centers[:, int(c1)], target.center[:, int(c2)])
+                for i1 in range(len(temp)):
+                    target.press[i1] = float(temp[i1])
+                target.write_press_elements(config.press_o[i])
+        elif (int(origin_press_type) == 1):     # Pressure on element centers
+            if (int(target_press_type) == 0):     # Pressure on grids
+                temp = kriging(origin.centers[:, int(c1)], origin.centers[:, int(c2)], origin.press[:], target.grids[:, int(c1)], target.grids[:, int(c2)])
+                print(temp)
+                for i1 in range(len(temp)):
+                    target.press[i1] = float(temp[i1])
+                target.write_press_grids(config.press_o[i])
+            
+            if (int(target_press_type) == 1):     # Pressure on element centers
+                temp = kriging(origin.centers[:, int(c1)], origin.centers[:, int(c2)], origin.press[:], target.centers[:, int(c1)], target.center[:, int(c2)])
+                for i1 in range(len(temp)):
+                    target.press[i1] = float(temp[i1])                
+                target.write_press_elements(config.press_o[i])        
     elif (int(config.method) == 1):
         
         if (int(origin_press_type) == 0):     # Pressure on grids
