@@ -86,7 +86,7 @@ for i in range(config.ifiles):
         if (int(origin_press_type) == 1):     # Pressure on element centers
             origin_idw = IDWInterpolator(origin.nelements, 4, 10)
             origin_idw.set_mesh(origin.centers[:, int(c1)], origin.centers[:, int(c2)], origin.press[:])
-            origin.write_press_elements(config.press_i[i])
+            origin.write_press_elements(config.press_i[i], 0)
             
         if (int(target_press_type) == 0):     # Pressure on grids
             target.press = origin_idw.eval_mesh(target.grids, int(config.plane), target.ngrids)
@@ -94,9 +94,13 @@ for i in range(config.ifiles):
         
         if (int(target_press_type) == 1):     # Pressure on element centers
             target.press = origin_idw.eval_mesh(target.centers, int(config.plane), target.nelements)
-            target.write_press_elements(config.press_o[i])
+            target.write_press_elements(config.press_o[i], 0)
     
     i_intmesh_out = config.press_i[i].replace(".txt", "_int.txt")
     origin.intmesh(i_intmesh_out)
     o_intmesh_out = config.press_o[i].replace(".txt", "_int.txt")
     target.intmesh(o_intmesh_out)
+    target.calc_press_element()
+    poutfile = config.press_o[i].replace(".txt", "_press_center.txt")
+    target.write_press_elements(poutfile, 1)
+    

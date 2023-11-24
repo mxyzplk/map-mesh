@@ -13,9 +13,7 @@ def kriging(ix, iy, ip, ox, oy):
     lowest = np.empty(nn)
     res = []
     
-    for i in range(ngo): # for each output grid
-    
-        print(i)    
+    for i in range(ngo): # for each output grid  
     
         di = calc_distances(ox[i], oy[i], ngi, ix, iy)
         lowest = get_n_lowest(di, nn)
@@ -25,8 +23,6 @@ def kriging(ix, iy, ip, ox, oy):
         z, ss = ok.execute("grid", ox, oy)
     
         z_res = np.ravel(z)
-        
-        print(z_res)
         
         res.append(z_res)
     

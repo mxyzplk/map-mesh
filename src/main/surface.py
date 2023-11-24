@@ -25,7 +25,6 @@ class Surface:
             line = file.readline()
             temp = line.split()
             self.ngrids = int(temp[0])                  # Number of grids
-            print("Grids: {}".format(self.ngrids))
             self.grids = np.empty((self.ngrids, 3))
             self.ids = np.empty(self.ngrids)
             
@@ -46,7 +45,6 @@ class Surface:
             line = file.readline()
             temp = line.split()
             self.nelements = int(temp[0])                  # Number of elements
-            print("Elements: {}".format(self.nelements))
             self.elements = np.empty((self.nelements, self.mesh_type))
             self.centers = np.empty((self.nelements, 3))
             self.area = np.empty((self.nelements, 3))
@@ -106,9 +104,21 @@ class Surface:
                 points = tuple(self.grids[[int(self.elements[i, 0]) - 1, int(self.elements[i, 1]) - 1, int(self.elements[i, 2]) - 1, int(self.elements[i, 3]) - 1], 0:3])
                 self.area[i, 0:3] = self.calculate_quadrilateral_area_3d(points)
                 
-        print("Areas: {:12.6f} {:12.6f} {:12.6f}".format(np.sum(self.area[:, 0]), np.sum(self.area[:, 1]), np.sum(self.area[:, 2])))
                 
-                
+
+
+
+    def calc_press_element(self):
+        
+        self.pcenters = np.empty(self.nelements)
+        
+        for i in range(self.nelements):
+            if (self.mesh_type == 3):
+                self.pcenters[i] = (self.press[int(self.elements[i, 0]) - 1] + self.press[int(self.elements[i, 1]) - 1] + self.press[int(self.elements[i, 2]) - 1]) / 3
+            elif (self.mesh_type == 4):
+                self.pcenters[i] = 0.25 * (self.press[int(self.elements[i, 0]) - 1] + self.press[int(self.elements[i, 1]) - 1] + self.press[int(self.elements[i, 2]) - 1] + self.press[int(self.elements[i, 3]) - 1])
+
+                 
                 
                 
     def calculate_triangle_area_3d(self, points):
@@ -178,10 +188,11 @@ class Surface:
             for i in range(self.ngrids):
                 file.write("{:12.6f} \n".format(self.press[i]))
             
-    def write_press_elements(self, fout):
+    def write_press_elements(self, fout, opt1):
         
         filepath = os.path.join(self.results_dir, fout)
         filepath_vtk = filepath.replace(".txt", ".vtk")
+        filepath_log = filepath.replace(".txt", "_log.txt")
         
         with open(filepath, 'w') as file: 
             for i in range(self.nelements):
@@ -219,8 +230,24 @@ class Surface:
             file.write("SCALARS dcp float\n")
             file.write("LOOKUP_TABLE default\n")
             file.write("\n")
-            for i in range(self.nelements):
-                file.write("{:12.6f} \n".format(self.press[i]))
+            if (opt1 == 0):
+                for i in range(self.nelements):
+                    file.write("{:12.6f} \n".format(self.press[i]))
+            elif (opt1 == 1):
+                for i in range(self.nelements):
+                    file.write("{:12.6f} \n".format(self.pcenters[i]))
+                    
+        
+        with open(filepath_log, 'w') as file:
+            
+            file.write("x,y,z,dcp\n")
+            
+            if (opt1 == 0):
+                for i in range(self.nelements):
+                    file.write("{:12.6f},{:12.6f},{:12.6f},{:12.6f} \n".format(self.centers[i, 0], self.centers[i, 1], self.centers[i, 2], self.press[i]))
+            elif (opt1 == 1):
+                for i in range(self.nelements):
+                    file.write("{:12.6f},{:12.6f},{:12.6f},{:12.6f} \n".format(self.centers[i, 0], self.centers[i, 1], self.centers[i, 2], self.pcenters[i]))              
                 
 
     def allocate_press(self, n):
